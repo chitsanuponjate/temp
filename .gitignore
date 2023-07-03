@@ -1,0 +1,6 @@
+.terraform
+.terraform.lock.hd
+terraform.tfstate.backup    
+providers
+.terraform\providers\registry.terraform.io\hashicorp
+C:\Users\User\Desktop\tfeks2\.terraform

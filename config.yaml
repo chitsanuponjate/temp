@@ -1,0 +1,54 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: cluster-irsa
+  region: us-east-1
+availabilityZones:
+- us-east-1a
+- us-east-1b
+iam:
+  withOIDC: true
+  serviceAccounts:
+  - metadata:
+      name: foo
+      namespace: staging
+    attachPolicyARNs:
+    - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+    - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+    - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+    # role has to start with eksctl-*
+    roleName: eksctl-list-s3-buckets
+    roleOnly: true
+  - metadata:
+      name: cluster-autoscaler
+      namespace: kube-system
+    wellKnownPolicies:
+      autoScaler: true
+    roleName: eksctl-cluster-autoscaler
+    roleOnly: true
+managedNodeGroups:
+- name: private-nodes
+  labels: { role: general }
+  iam:
+    attachPolicyARNs: [
+      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+      - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+    ]
+  instanceType: t3.small
+  desiredCapacity: 1
+  maxSize: 5
+  minSize: 0
+- name: private-nodes
+  labels: { role: general }
+  iam:
+    attachPolicyARNs: [
+      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+      - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+    ]
+  instanceType: t3.small
+  desiredCapacity: 1
+  maxSize: 5
+  minSize: 0

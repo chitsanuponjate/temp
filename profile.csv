@@ -1,0 +1,85 @@
+Access key ID,Secret access key
+AKIAR25PCEOZSRXT6KDJ,TU/APHCxcoY3FpKbnbqk3qsBg1ONTCsiBXBm+afN
+
+
+export AWS_ACCESS_KEY_ID=AKIAR25PCEOZSRXT6KDJ
+export AWS_SECRET_ACCESS_KEY=TU/APHCxcoY3FpKbnbqk3qsBg1ONTCsiBXBm+afN
+export AWS_REGION=`us-east-1` 
+# e.g.`ap-south-1`
+
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: private-eks
+  region: us-east-1
+  version: "1.25"
+availabilityZones:
+- us-east-1a
+- us-east-1b
+managedNodeGroups:
+- name: general
+  privateNetworking: true
+  instanceType: t2.small
+  desiredCapacity: 1
+- name: spot
+  privateNetworking: true
+  instanceType: t2.small
+  spot: true
+  desiredCapacity: 1
+  labels:
+    role: spot
+  taints:
+  - key: spot
+    value: "true"
+    effect: NoSchedule
+
+#  eksctl create cluster -f example1.yaml --profile eksctl
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "ec2:*",
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "elasticloadbalancing:*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "cloudwatch:*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "autoscaling:*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "iam:CreateServiceLinkedRole",
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "iam:AWSServiceName": [
+                        "autoscaling.amazonaws.com",
+                        "ec2scheduled.amazonaws.com",
+                        "elasticloadbalancing.amazonaws.com",
+                        "spot.amazonaws.com",
+                        "spotfleet.amazonaws.com",
+                        "transitgateway.amazonaws.com"
+                    ]
+                }
+            }
+        }
+    ]
+}
+
+
+Connect to eks cluster
+aws eks --region us-east-1 update-kubeconfig --name eks --profile terrafrom
