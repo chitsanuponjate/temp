@@ -22,3 +22,16 @@ terraform {
     }
   }
 }
+
+
+module "NetWork" {
+  source = "./network" 
+  cluster_name = var.cluster_name
+  cluster_version = var.cluster_version
+}
+
+module "Nodegroup" {
+  source = "./nodegroup"
+  eks_cluster_name = module.NetWork.eks_cluster_name
+  subnet_private = module.NetWork.subnet_private
+}

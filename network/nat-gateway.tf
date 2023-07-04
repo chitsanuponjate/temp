@@ -1,10 +1,8 @@
 resource "aws_eip" "nat" {
   vpc = true
-
   tags = {
     Name = "nat"
   }
-
 }
 
 resource "aws_nat_gateway" "nat" {
