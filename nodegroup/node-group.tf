@@ -1,9 +1,9 @@
-# variable "policy_attachment" {
-#   default     = ["arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy", "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy", "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"]
-#   type        = list(string)
-#   description = "policy attachment"
+variable "policy_attachment" {
+  default     = ["arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy", "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy", "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"]
+  type        = list(string)
+  description = "policy attachment"
 
-# }
+}
 
 resource "aws_iam_role" "nodes" {
   name = "eks-node-group"
@@ -35,11 +35,32 @@ output "policy_attachment" {
   value = local.transformed_policy_attachments
 }
 
-resource "aws_iam_role_policy_attachment" "nodes-policy_attachment" {
-  for_each = toset(flatten(local.transformed_policy_attachments))
+# resource "aws_iam_role_policy_attachment" "nodes-policy_attachment" {
+#   for_each = toset(flatten(local.transformed_policy_attachments))
 
-  policy_arn = each.value
-  role       = aws_iam_role.nodes.name
+#   policy_arn = each.value
+#   role       = aws_iam_role.nodes.name
+# }
+
+resource "aws_iam_role_policy_attachment" "nodes-AmazonEKSWorkerNodePolicy" {
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+
+  role = aws_iam_role.nodes.name
+
+}
+
+
+resource "aws_iam_role_policy_attachment" "nodes-AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+
+  role = aws_iam_role.nodes.name
+}
+
+resource "aws_iam_role_policy_attachment" "nodes-AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+
+  role = aws_iam_role.nodes.name  
 }
 
 
@@ -65,6 +86,8 @@ resource "aws_eks_node_group" "nodes_group" {
     min_size = each.value.min_size
   }
 
+  
+
   instance_types = each.value.instance_types
 
   update_config {
@@ -76,10 +99,14 @@ resource "aws_eks_node_group" "nodes_group" {
   }
 
   # depends_on = local.dependsonAttachment
-  depends_on = [
-    aws_iam_role_policy_attachment.nodes-policy_attachment[0],
-    aws_iam_role_policy_attachment.nodes-policy_attachment[1],
-    aws_iam_role_policy_attachment.nodes-policy_attachment[2],
+  # depends_on = [
+  #   aws_iam_role_policy_attachment.nodes-policy_attachment[0],
+  #   aws_iam_role_policy_attachment.nodes-policy_attachment[1],
+  #   aws_iam_role_policy_attachment.nodes-policy_attachment[2],
+  # ]
+   depends_on = [
+    aws_iam_role_policy_attachment.nodes-AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.nodes-AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.nodes-AmazonEKSWorkerNodePolicy,
   ]
-
 }
