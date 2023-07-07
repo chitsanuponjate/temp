@@ -48,6 +48,7 @@ resource "aws_iam_role_policy_attachment" "nodes-AmazonEKSWorkerNodePolicy" {
 
   role = aws_iam_role.nodes.name
 
+
 }
 
 
@@ -74,7 +75,7 @@ resource "aws_eks_node_group" "nodes_group" {
 
   node_role_arn = aws_iam_role.nodes.arn
 
-  capacity_type = each.value.capacity_type
+  # capacity_type = each.value.capacity_type
 
   subnet_ids = each.value.subnet_id
 
@@ -100,7 +101,7 @@ resource "aws_eks_node_group" "nodes_group" {
 
   # depends_on = local.dependsonAttachment
   # depends_on = [
-  #   aws_iam_role_policy_attachment.nodes-policy_attachment[0],
+  #   aws_iam_role_policy_attachment.nodes-policy_attachment[0], 
   #   aws_iam_role_policy_attachment.nodes-policy_attachment[1],
   #   aws_iam_role_policy_attachment.nodes-policy_attachment[2],
   # ]
@@ -110,3 +111,5 @@ resource "aws_eks_node_group" "nodes_group" {
     aws_iam_role_policy_attachment.nodes-AmazonEKSWorkerNodePolicy,
   ]
 }
+
+
